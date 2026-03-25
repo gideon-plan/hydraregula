@@ -1,6 +1,6 @@
 {.experimental: "strict_funcs".}
 import std/[unittest, strutils, tables]
-import spregula
+import hydraregula
 suite "adapter":
   test "kv adapter":
     let r = kv_adapter("type=temperature\nvalue=25\nunit=C")
