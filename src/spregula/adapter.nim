@@ -1,11 +1,15 @@
 ## adapter.nim -- SP message -> regula WME conversion.
 {.experimental: "strict_funcs".}
 import std/[strutils, tables]
-import lattice
+
+type
+  BridgeError* = object of CatchableError
+
+import basis/code/choice
 type
   WmeFields* = Table[string, string]
-  AdapterFn* = proc(payload: string): Result[tuple[fact_type: string, fields: WmeFields], BridgeError] {.raises: [].}
-proc kv_adapter*(payload: string): Result[tuple[fact_type: string, fields: WmeFields], BridgeError] =
+  AdapterFn* = proc(payload: string): Choice[tuple[fact_type: string, fields: WmeFields]] {.raises: [].}
+proc kv_adapter*(payload: string): Choice[tuple[fact_type: string, fields: WmeFields]] =
   var fields: WmeFields
   var fact_type = "event"
   for line in payload.splitLines():
@@ -17,4 +21,4 @@ proc kv_adapter*(payload: string): Result[tuple[fact_type: string, fields: WmeFi
       let v = trimmed[eq + 1 ..< trimmed.len].strip()
       if k == "type": fact_type = v
       else: fields[k] = v
-  Result[tuple[fact_type: string, fields: WmeFields], BridgeError].good((fact_type: fact_type, fields: fields))
+  good((fact_type: fact_type, fields: fields))
